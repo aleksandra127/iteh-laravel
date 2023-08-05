@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateMessagesTable extends Migration
+class AddTitlePostsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,10 @@ class CreateMessagesTable extends Migration
      */
     public function up()
     {
-        Schema::create('messages', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('sender_id');
-            $table->foreignId('receiver_id');
-            $table->text('message');
-            $table->timestamps();
+        Schema::table('posts', function (Blueprint $table) {
+               
+            $table->string('title');
+            
         });
     }
 
@@ -29,6 +27,10 @@ class CreateMessagesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('messages');
+        Schema::table('posts', function (Blueprint $table) {
+               
+            $table->removeColumn('title');
+            
+        });
     }
 }
