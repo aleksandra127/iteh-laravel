@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\MessageResource;
 use App\Models\Message;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class MessageController extends Controller
 {
@@ -36,7 +37,19 @@ class MessageController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'sender_id' => 'required|integer',
+            'receiver_id' => 'required|integer|different:sender_id',
+            'message' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $message = Message::create($request->all());
+
+        return response()->json(['message' => 'Poruka uspešno poslata'], 201);
     }
 
     /**
@@ -68,19 +81,36 @@ class MessageController extends Controller
      * @param  \App\Models\Message  $message
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Message $message)
+    public function update(Request $request, $id)
     {
-        //
-    }
+        $message = Message::findOrFail($id);
 
+        $validator = Validator::make($request->all(), [
+            'sender_id' => 'required|integer',
+            'receiver_id' => 'required|integer|different:sender_id',
+            'message' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $message->update($request->all());
+
+        return response()->json(['message' => 'Poruka uspešno izmenjena'], 200);
+    }
     /**
      * Remove the specified resource from storage.
      *
      * @param  \App\Models\Message  $message
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Message $message)
+    public function destroy($id)
     {
-        //
+        $message = Message::findOrFail($id);
+
+        $message->delete();
+
+        return response()->json(['message' => 'Poruka uspešno obrisana'], 200);
     }
 }
